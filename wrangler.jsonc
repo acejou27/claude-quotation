@@ -37,5 +37,13 @@
   // Cron 任務配置（匯率同步）
   "triggers": {
     "crons": ["0 0 * * *"]  // 每天午夜執行
-  }
+  },
+
+  // Tail Consumers（日誌監控）
+  // 將日誌發送到 Tail Worker 進行即時監控和告警
+  "tail_consumers": [
+    {
+      "service": "quotation-tail-worker"
+    }
+  ]
 }

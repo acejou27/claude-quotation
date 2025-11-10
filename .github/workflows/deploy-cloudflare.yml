@@ -103,8 +103,34 @@ jobs:
             echo "${{ secrets.SUCCESS_WEBHOOK_URL }}" | pnpm exec wrangler secret put SUCCESS_WEBHOOK_URL --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
           fi
 
-          # 使用動態 worker 名稱部署
+          # 使用動態 worker 名稱部署主 Worker
           pnpm exec wrangler deploy --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: f9916b95d011e8ad2a3fe10883053b0f
+
+      - name: Deploy Tail Worker (Monitoring)
+        run: |
+          # 部署 Tail Worker 進行日誌監控
+          echo "Deploying Tail Worker for monitoring..."
+
+          # 設置 Tail Worker secrets
+          if [ -n "${{ secrets.ERROR_WEBHOOK_URL }}" ]; then
+            echo "${{ secrets.ERROR_WEBHOOK_URL }}" | pnpm exec wrangler secret put ERROR_WEBHOOK_URL --config wrangler.tail.jsonc
+          fi
+
+          if [ -n "${{ secrets.SUCCESS_WEBHOOK_URL }}" ]; then
+            echo "${{ secrets.SUCCESS_WEBHOOK_URL }}" | pnpm exec wrangler secret put SUCCESS_WEBHOOK_URL --config wrangler.tail.jsonc
+          fi
+
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            echo "${{ secrets.SLACK_WEBHOOK_URL }}" | pnpm exec wrangler secret put SLACK_WEBHOOK_URL --config wrangler.tail.jsonc
+          fi
+
+          # 部署 Tail Worker
+          pnpm exec wrangler deploy --config wrangler.tail.jsonc
+
+          echo "✅ Tail Worker deployed successfully"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: f9916b95d011e8ad2a3fe10883053b0f

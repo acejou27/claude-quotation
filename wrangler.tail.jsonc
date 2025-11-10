@@ -1,0 +1,23 @@
+{
+  "name": "quotation-tail-worker",
+  "main": "workers/tail-worker.ts",
+  "compatibility_date": "2025-03-25",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Tail Worker 環境變數
+  "vars": {
+    "ALERT_THRESHOLD_ERROR_RATE": "5",      // 錯誤率閾值 5%
+    "ALERT_THRESHOLD_RESPONSE_TIME": "1000" // 回應時間閾值 1000ms
+  },
+
+  // Secrets 需要通過 wrangler secret 命令設置：
+  // wrangler secret put ERROR_WEBHOOK_URL --name quotation-tail-worker
+  // wrangler secret put SUCCESS_WEBHOOK_URL --name quotation-tail-worker
+  // wrangler secret put SLACK_WEBHOOK_URL --name quotation-tail-worker
+
+  // Tail 消費者配置
+  // 這個 worker 將監聽主 worker 的日誌
+  // 設置方式：
+  // wrangler tail quotation-system --format json | wrangler tail quotation-tail-worker
+  // 或通過 Dashboard 設置：Workers → quotation-system → Logs → Add consumer
+}
