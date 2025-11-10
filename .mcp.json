@@ -1,15 +1,5 @@
 {
   "mcpServers": {
-    "zeabur": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "zeabur-mcp@latest"
-      ],
-      "env": {
-        "ZEABUR_TOKEN": "sk-gunsc3tyolpxb7beylvkwkhexcxqd"
-      }
-    },
     "supabase": {
       "type": "http",
       "url": "https://mcp.supabase.com/mcp?project_ref=nxlqtnnssfzzpbyfjnby&anon_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54bHF0bm5zc2Z6enBieWZqbmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwODMwMTEsImV4cCI6MjA1OTY1OTAxMX0.nMSM3V16oNAEpK738c5SOQmMDL3kPpJSgsC71HppQrI"
