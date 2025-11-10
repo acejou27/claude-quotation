@@ -6,5 +6,36 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+
+  // 環境變數配置
+  // 使用 `wrangler secret put <KEY>` 設置敏感資料
+  // 使用 `wrangler secret bulk <FILE>` 批量設置
+  "vars": {
+    // 公開環境變數（非敏感資料）
+    "NODE_ENV": "production",
+    "COMPANY_NAME": "振禾有限公司",
+    "NEXT_PUBLIC_APP_URL": "https://quotation-system.acejou27.workers.dev"
+  },
+
+  // Secrets 需要通過 wrangler secret 命令設置：
+  // wrangler secret put NEXT_PUBLIC_SUPABASE_URL
+  // wrangler secret put NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+  // wrangler secret put SUPABASE_POOLER_URL
+  // wrangler secret put ZEABUR_POSTGRES_URL
+  // wrangler secret put EXCHANGE_RATE_API_KEY
+  // wrangler secret put GMAIL_USER
+  // wrangler secret put GMAIL_APP_PASSWORD
+  // wrangler secret put RESEND_API_KEY
+  // wrangler secret put CSRF_SECRET
+  // wrangler secret put CRON_SECRET
+  // wrangler secret put ADMIN_API_KEY
+  // wrangler secret put ERROR_WEBHOOK_URL (optional)
+  // wrangler secret put SUCCESS_WEBHOOK_URL (optional)
+
+  // Cron 任務配置（匯率同步）
+  "triggers": {
+    "crons": ["0 0 * * *"]  // 每天午夜執行
   }
 }

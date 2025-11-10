@@ -45,8 +45,12 @@ jobs:
           # Supabase 環境變數（建置時需要）
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_POOLER_URL: ${{ secrets.SUPABASE_POOLER_URL }}
+          ZEABUR_POSTGRES_URL: ${{ secrets.ZEABUR_POSTGRES_URL }}
           # 其他建置時可能需要的環境變數
           NODE_ENV: production
+          COMPANY_NAME: ${{ secrets.COMPANY_NAME || '振禾有限公司' }}
 
       - name: Set deployment name
         id: deployment-name
@@ -62,6 +66,43 @@ jobs:
 
       - name: Deploy to Cloudflare Workers
         run: |
+          # 部署前設置所有 secrets
+          echo "Setting Cloudflare Workers secrets..."
+
+          # 設置 Supabase secrets
+          echo "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" | pnpm exec wrangler secret put NEXT_PUBLIC_SUPABASE_URL --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          echo "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" | pnpm exec wrangler secret put NEXT_PUBLIC_SUPABASE_ANON_KEY --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          echo "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" | pnpm exec wrangler secret put SUPABASE_SERVICE_ROLE_KEY --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          echo "${{ secrets.SUPABASE_POOLER_URL }}" | pnpm exec wrangler secret put SUPABASE_POOLER_URL --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+
+          # 設置資料庫 URL
+          echo "${{ secrets.ZEABUR_POSTGRES_URL }}" | pnpm exec wrangler secret put ZEABUR_POSTGRES_URL --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+
+          # 設置 API Keys
+          echo "${{ secrets.EXCHANGE_RATE_API_KEY }}" | pnpm exec wrangler secret put EXCHANGE_RATE_API_KEY --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          echo "${{ secrets.CSRF_SECRET }}" | pnpm exec wrangler secret put CSRF_SECRET --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          echo "${{ secrets.CRON_SECRET }}" | pnpm exec wrangler secret put CRON_SECRET --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          echo "${{ secrets.ADMIN_API_KEY }}" | pnpm exec wrangler secret put ADMIN_API_KEY --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+
+          # 設置 Email secrets (如果存在)
+          if [ -n "${{ secrets.GMAIL_USER }}" ]; then
+            echo "${{ secrets.GMAIL_USER }}" | pnpm exec wrangler secret put GMAIL_USER --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+            echo "${{ secrets.GMAIL_APP_PASSWORD }}" | pnpm exec wrangler secret put GMAIL_APP_PASSWORD --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          fi
+
+          if [ -n "${{ secrets.RESEND_API_KEY }}" ]; then
+            echo "${{ secrets.RESEND_API_KEY }}" | pnpm exec wrangler secret put RESEND_API_KEY --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          fi
+
+          # 設置可選的 Webhook URLs
+          if [ -n "${{ secrets.ERROR_WEBHOOK_URL }}" ]; then
+            echo "${{ secrets.ERROR_WEBHOOK_URL }}" | pnpm exec wrangler secret put ERROR_WEBHOOK_URL --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          fi
+
+          if [ -n "${{ secrets.SUCCESS_WEBHOOK_URL }}" ]; then
+            echo "${{ secrets.SUCCESS_WEBHOOK_URL }}" | pnpm exec wrangler secret put SUCCESS_WEBHOOK_URL --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
+          fi
+
           # 使用動態 worker 名稱部署
           pnpm exec wrangler deploy --name ${{ steps.deployment-name.outputs.WORKER_NAME }}
         env:
